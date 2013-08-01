@@ -37,8 +37,12 @@
     (testing "as unsigned int"
       (is (= [4278190080] (unpack [:uint] (as-bytes [-1 0 0 0])))))
 
-    (testing "as another byte array"
-      (is (ref= (as-bytes [1 2 3]) (first (unpack [:rest] (as-bytes [1 2 3])))))))
+    (testing "as a byte array of the remaining bytes"
+      (is (ref= (as-bytes [1 2 3]) (first (unpack [:rest] (as-bytes [1 2 3]))))))
+
+    (testing "as a byte array of some length"
+      (is (ref= (as-bytes [1 2 3]) (first (unpack [3] (as-bytes [1 2 3 4 5])))))))
+
 
   (testing "Bytes can be iteratively unpacked into multiple formats"
     (let [[b s i more] (unpack [:byte :short :int :rest] (as-bytes (range 10)))]
@@ -46,6 +50,10 @@
       (is (= 258 s))
       (is (= 50595078 i))
       (is (ref= (as-bytes [7 8 9]) more)))))
+
+(deftest format-is-schema-entry
+  (is (schema-entry? :byte))
+  (is (not (schema-entry? :invalid))))
 
 (deftest ensure-unpack-format-is-valid
   (testing "Invalid unpack format raises IllegalArgumentException"

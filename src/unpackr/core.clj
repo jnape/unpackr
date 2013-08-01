@@ -22,13 +22,24 @@
               (.get % more)
               more)})
 
+(defn schema-entry? [fmt]
+  (letfn [(in? [l x] (not= (.indexOf l x) -1))]
+    (in? (keys unpack-schema) fmt)))
+
 (defn ensure-unpack-format! [fmt]
-  (if (not (contains? unpack-schema fmt))
+  (if (not (or (contains? unpack-schema fmt) (number? fmt)))
     (throw (IllegalArgumentException.
             (str "Invalid unpack format: " fmt)))))
+
+(defn unpack-format [fmt buffer]
+  (if (number? fmt)
+    (let [result (byte-array fmt)]
+      (.get buffer result)
+      result)
+    ((unpack-schema fmt) buffer)))
 
 (defn unpack [fmts barr]
   (let [buffer (buffer-from barr)]
     (map #(do
             (ensure-unpack-format! %)
-            ((unpack-schema %) buffer)) fmts)))
+            (unpack-format % buffer)) fmts)))
