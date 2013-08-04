@@ -26,20 +26,21 @@
   (letfn [(in? [l x] (not= (.indexOf l x) -1))]
     (in? (keys unpack-schema) fmt)))
 
-(defn ensure-unpack-format! [fmt]
-  (if (not (or (contains? unpack-schema fmt) (number? fmt)))
-    (throw (IllegalArgumentException.
-            (str "Invalid unpack format: " fmt)))))
-
-(defn unpack-format [fmt buffer]
-  (if (number? fmt)
-    (let [result (byte-array fmt)]
-      (.get buffer result)
-      result)
-    ((unpack-schema fmt) buffer)))
+(defn unpack-format [fmt]
+  (cond
+   (number? fmt) #(let [result (byte-array fmt)] (.get % result) result)
+   (schema-entry? fmt) (unpack-schema fmt)
+   :else (throw (IllegalArgumentException. (str "Invalid unpack format: " fmt)))))
 
 (defn unpack [fmts barr]
   (let [buffer (buffer-from barr)]
-    (map #(do
-            (ensure-unpack-format! %)
-            (unpack-format % buffer)) fmts)))
+    (map #((unpack-format %) buffer) fmts)))
+
+(defmacro unpack-let [bindings barr & body]
+  (let [[ks vs] (unzip bindings)]
+    `(let [~(vec ks) (unpack ~(vec vs) ~barr)]
+       ~@body)))
+
+(defn unzip [coll]
+  (let [pairs (partition 2 coll)]
+    [(map first pairs) (map second pairs)]))

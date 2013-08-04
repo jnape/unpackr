@@ -7,6 +7,16 @@
 (defn ref= [e a]
   (EqualsBuilder/reflectionEquals e a))
 
+(defn fail [message]
+  (throw (AssertionError. message)))
+
+(defmacro raised? [e & body]
+  `(try
+     (do
+       ~@body
+       (fail (str "Expected " ~e " to be thrown")))
+     (catch ~e expected# true)))
+
 (deftest convert-sequence-to-bytes
   (testing "Creates byte array from sequence"
     (is (ref= (byte-array (map byte [1 1 1]))
@@ -43,7 +53,6 @@
     (testing "as a byte array of some length"
       (is (ref= (as-bytes [1 2 3]) (first (unpack [3] (as-bytes [1 2 3 4 5])))))))
 
-
   (testing "Bytes can be iteratively unpacked into multiple formats"
     (let [[b s i more] (unpack [:byte :short :int :rest] (as-bytes (range 10)))]
       (is (= 0 b))
@@ -57,4 +66,13 @@
 
 (deftest ensure-unpack-format-is-valid
   (testing "Invalid unpack format raises IllegalArgumentException"
-    (is (thrown? IllegalArgumentException (ensure-unpack-format! :invalid)))))
+    (is (thrown? IllegalArgumentException (first (unpack [:invalid] (byte-array 0)))))))
+
+(deftest unzip-keys-from-values
+  (testing "Unzipping seq splits into odd index elements and even index elements"
+    (is (= [[1 3 5] [2 4 6]] (unzip [1 2 3 4 5 6])))))
+
+(deftest unpack-formats-and-bind-to-values-for-body
+  (is (= 5 (unpack-let [a :byte] (as-bytes [5]) a))))
+
+(run-tests)
