@@ -68,10 +68,6 @@
   (testing "Invalid unpack format raises IllegalArgumentException"
     (is (thrown? IllegalArgumentException (first (unpack [:invalid] (byte-array 0)))))))
 
-(deftest unzip-keys-from-values
-  (testing "Unzipping seq splits into odd index elements and even index elements"
-    (is (= [[1 3 5] [2 4 6]] (unzip [1 2 3 4 5 6])))))
-
 (deftest unpack-formats-and-bind-to-values-for-body
   (is (= 5 (unpack-let [a :byte] (as-bytes [5]) a))))
 

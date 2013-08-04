@@ -41,6 +41,6 @@
     `(let [~(vec ks) (unpack ~(vec vs) ~barr)]
        ~@body)))
 
-(defn unzip [coll]
+(defn- unzip [coll]
   (let [pairs (partition 2 coll)]
     [(map first pairs) (map second pairs)]))
