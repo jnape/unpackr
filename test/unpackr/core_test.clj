@@ -60,15 +60,9 @@
       (is (= 50595078 i))
       (is (ref= (as-bytes [7 8 9]) more)))))
 
-(deftest format-is-schema-entry
-  (is (schema-entry? :byte))
-  (is (not (schema-entry? :invalid))))
-
 (deftest ensure-unpack-format-is-valid
   (testing "Invalid unpack format raises IllegalArgumentException"
     (is (thrown? IllegalArgumentException (first (unpack [:invalid] (byte-array 0)))))))
 
 (deftest unpack-formats-and-bind-to-values-for-body
   (is (= 5 (unpack-let [a :byte] (as-bytes [5]) a))))
-
-(run-tests)

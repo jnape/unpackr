@@ -2,13 +2,7 @@
   (:import [java.nio ByteBuffer]
            [java.io File FileInputStream]))
 
-(defn as-bytes [l]
-  (byte-array (map byte l)))
-
-(defn buffer-from [barr]
-  (ByteBuffer/wrap barr))
-
-(def unpack-schema
+(def ^:private unpack-schema
   {:byte   #(.get %)
    :ubyte  #(bit-and ((unpack-schema :byte) %) 0x00FF)
 
@@ -22,23 +16,29 @@
               (.get % more)
               more)})
 
-(defn schema-entry? [fmt]
+(defn- schema-entry? [fmt]
   (letfn [(in? [l x] (not= (.indexOf l x) -1))]
     (in? (keys unpack-schema) fmt)))
 
-(defn unpack-format [fmt]
+(defn- unpack-format [fmt]
   (cond
    (number? fmt) #(let [result (byte-array fmt)] (.get % result) result)
    (schema-entry? fmt) (unpack-schema fmt)
    :else (throw (IllegalArgumentException. (str "Invalid unpack format: " fmt)))))
 
-(defn unpack [fmts barr]
-  (let [buffer (buffer-from barr)]
-    (map #((unpack-format %) buffer) fmts)))
-
 (defn- unzip [coll]
   (let [pairs (partition 2 coll)]
     [(map first pairs) (map second pairs)]))
+
+(defn as-bytes [l]
+  (byte-array (map byte l)))
+
+(defn buffer-from [barr]
+  (ByteBuffer/wrap barr))
+
+(defn unpack [fmts barr]
+  (let [buffer (buffer-from barr)]
+    (map #((unpack-format %) buffer) fmts)))
 
 (defmacro unpack-let [bindings barr & body]
   (let [[ks vs] (unzip bindings)]
