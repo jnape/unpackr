@@ -4,18 +4,8 @@
   (:import [org.apache.commons.lang.builder EqualsBuilder]
            [java.nio ByteBuffer]))
 
-(defn ref= [e a]
+(defn- ref= [e a]
   (EqualsBuilder/reflectionEquals e a))
-
-(defn fail [message]
-  (throw (AssertionError. message)))
-
-(defmacro raised? [e & body]
-  `(try
-     (do
-       ~@body
-       (fail (str "Expected " ~e " to be thrown")))
-     (catch ~e expected# true)))
 
 (deftest convert-sequence-to-bytes
   (testing "Creates byte array from sequence"
