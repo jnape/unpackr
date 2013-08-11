@@ -77,8 +77,7 @@
 
     (unpack-let [x :short y :int] (as-bytes [0 1 0 0 0 10])
       (+ x y))
-    ;-> 11
-  "
+    ;-> 11"
   [bindings barr & body]
   (let [[ks vs] (unzip bindings)]
     `(let [~(vec ks) (unpack ~(vec vs) ~barr)]
