@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Unpackr by jnape</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Unpackr</h1>
+        <p>DSL for making working with byte-arrays palatable in Clojure</p>
+
+        <p class="view"><a href="https://github.com/jnape/unpackr">View the Project on GitHub <small>jnape/unpackr</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/jnape/unpackr/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jnape/unpackr/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jnape/unpackr">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="unpackr" class="anchor" href="#unpackr"><span class="octicon octicon-link"></span></a>unpackr</h1>
+
+<p>A DSL for making working with byte-arrays palatable in Clojure</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>usage</h2>
+
+<p>unpackr is distributed through clojars, and can be included in your project's <code>:dependencies</code> as <code>[unpackr "0.1.0-SNAPSHOT"]</code></p>
+
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>examples</h2>
+
+<p>Extract a signed short, followed by an unsigned int, followed by the remaining bytes from a byte array:</p>
+
+<div class="highlight"><pre><span class="c1">; The normal way</span>
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">buffer</span> <span class="p">(</span><span class="nf">java.nio.ByteBuffer/wrap</span> <span class="p">(</span><span class="nf">byte-array</span> <span class="p">(</span><span class="nb">map byte </span><span class="p">(</span><span class="nb">range </span><span class="mi">100</span><span class="p">))))]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">a</span> <span class="p">(</span><span class="nf">.getShort</span> <span class="nv">buffer</span><span class="p">)</span> <span class="nv">b</span> <span class="p">(</span><span class="nb">bit-and </span><span class="p">(</span><span class="nf">.getInt</span> <span class="nv">buffer</span><span class="p">)</span> <span class="mi">0</span><span class="nv">x00000000FFFFFFFF</span><span class="p">)</span> <span class="nv">c</span> <span class="p">(</span><span class="nf">byte-array</span> <span class="p">(</span><span class="nf">.remaining</span> <span class="nv">buffer</span><span class="p">))]</span>
+    <span class="p">(</span><span class="nf">.get</span> <span class="nv">buffer</span> <span class="nv">c</span><span class="p">)</span>
+    <span class="p">[</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">]))</span>
+
+<span class="c1">; Using unpackr</span>
+<span class="p">(</span><span class="nf">unpack</span> <span class="p">[</span><span class="ss">:short</span> <span class="ss">:uint</span> <span class="ss">:rest</span><span class="p">]</span> <span class="p">(</span><span class="nf">as-bytes</span> <span class="p">(</span><span class="nb">range </span><span class="mi">100</span><span class="p">)))</span>
+</pre></div>
+
+<p>Extract an unsigned short, followed by that many bytes ahead, followed by an unsigned byte:</p>
+
+<div class="highlight"><pre><span class="c1">; The normal way</span>
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">buffer</span> <span class="p">(</span><span class="nf">java.nio.ByteBuffer/wrap</span> <span class="p">(</span><span class="nf">byte-array</span> <span class="p">(</span><span class="nb">map byte </span><span class="p">(</span><span class="nb">range </span><span class="mi">100</span><span class="p">))))]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">a</span> <span class="p">(</span><span class="nb">bit-and </span><span class="p">(</span><span class="nf">.getShort</span> <span class="nv">buffer</span><span class="p">)</span> <span class="mi">0</span><span class="nv">x0000FFFF</span><span class="p">)</span> <span class="nv">b</span> <span class="p">(</span><span class="nf">byte-array</span> <span class="nv">a</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">.get</span> <span class="nv">buffer</span> <span class="nv">b</span><span class="p">)</span>
+    <span class="p">[</span><span class="nv">a</span> <span class="nv">b</span> <span class="p">(</span><span class="nb">bit-and </span><span class="p">(</span><span class="nf">.get</span> <span class="nv">buffer</span><span class="p">)</span> <span class="mi">0</span><span class="nv">x00FF</span><span class="p">)]))</span>
+
+<span class="c1">; Using unpackr</span>
+<span class="p">(</span><span class="nf">unpack-let</span> <span class="p">[</span><span class="nv">a</span> <span class="ss">:ushort</span> <span class="nv">more</span> <span class="ss">:rest</span><span class="p">]</span> <span class="p">(</span><span class="nf">as-bytes</span> <span class="p">(</span><span class="nb">range </span><span class="mi">100</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">unpack-let</span> <span class="p">[</span><span class="nv">b</span> <span class="nv">a</span> <span class="nv">c</span> <span class="ss">:ubyte</span><span class="p">]</span> <span class="nv">more</span>
+    <span class="p">[</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">]))</span>
+</pre></div>
+
+<h2>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>documentation</h2>
+
+<p>The full API documentation of unpackr can be found at <a href="http://www.jnape.com/code/unpackr">http://www.jnape.com/code/unpackr</a></p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/jnape">jnape</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
