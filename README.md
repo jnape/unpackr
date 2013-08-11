@@ -1,7 +1,14 @@
-unpackr
+unpackr [![Build Status](https://travis-ci.org/jnape/unpackr.png?branch=master)](https://travis-ci.org/jnape/unpackr)
 =======
 
 A DSL for making working with byte-arrays palatable in Clojure
+
+installation
+------------
+
+Add the following dependency to your `project.clj` file:
+
+    [unpackr "0.1.0-SNAPSHOT"]
 
 examples
 --------
@@ -33,3 +40,13 @@ Extract an unsigned short, followed by that many bytes ahead, followed by an uns
   (unpack-let [b a c :ubyte] more
     [a b c]))
 ```
+
+documentation
+-------------
+
+The full API documentation of unpackr can be found at http://www.jnape.com/code/unpackr
+
+license
+-------
+
+unpackr is distributed under the [Eclipse Public License](http://choosealicense.com/licenses/eclipse/), the same as Clojure.
