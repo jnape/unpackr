@@ -1,6 +1,5 @@
 (ns unpackr.core
-  (:import [java.nio ByteBuffer]
-           [java.io File FileInputStream]))
+  (:import [java.nio ByteBuffer]))
 
 (def ^:private unpack-schema
   {:byte   #(.get %)
