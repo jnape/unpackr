@@ -44,7 +44,7 @@ Extract an unsigned short, followed by that many bytes ahead, followed by an uns
 documentation
 -------------
 
-The full API documentation of unpackr can be found at http://www.jnape.com/code/unpackr
+The full API documentation of unpackr can be found at http://jnape.github.io/unpackr/
 
 license
 -------
